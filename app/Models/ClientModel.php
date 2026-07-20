@@ -129,16 +129,53 @@ class ClientModel extends Model
     }
 
     /**
-     * Met à jour le solde d'un client
+     * Met à jour le solde d'un client - VERSION CORRIGÉE AVEC LOGS
      */
     public function updateBalance($clientId, $amount)
     {
+        // Récupérer le client
         $client = $this->find($clientId);
-        if ($client) {
-            $newBalance = $client['balance'] + $amount;
-            return $this->update($clientId, ['balance' => $newBalance]);
+        
+        if (!$client) {
+            log_message('error', "❌ updateBalance: Client $clientId non trouvé");
+            return false;
         }
-        return false;
+        
+        // Calculer le nouveau solde
+        $oldBalance = (float) $client['balance'];
+        $newBalance = $oldBalance + (float) $amount;
+        
+        log_message('debug', "📊 updateBalance - Client: $clientId, Ancien: $oldBalance, Montant: $amount, Nouveau: $newBalance");
+        
+        // Mettre à jour
+        $result = $this->update($clientId, ['balance' => $newBalance]);
+        
+        if ($result) {
+            log_message('debug', "✅ updateBalance - Mise à jour réussie pour le client $clientId");
+        } else {
+            log_message('error', "❌ updateBalance - Échec de la mise à jour pour le client $clientId");
+            log_message('error', "❌ Dernière erreur DB: " . print_r($this->errors(), true));
+        }
+        
+        return $result;
+    }
+
+    /**
+     * Met à jour le solde d'un client - Version alternative avec SQL direct
+     */
+    public function updateBalanceDirect($clientId, $amount)
+    {
+        $db = \Config\Database::connect();
+        $query = "UPDATE clients SET balance = balance + ? WHERE id = ?";
+        $result = $db->query($query, [(float) $amount, (int) $clientId]);
+        
+        if ($result) {
+            log_message('debug', "✅ updateBalanceDirect - Mise à jour SQL réussie pour le client $clientId");
+            return true;
+        } else {
+            log_message('error', "❌ updateBalanceDirect - Échec de la mise à jour SQL pour le client $clientId");
+            return false;
+        }
     }
 
     /**

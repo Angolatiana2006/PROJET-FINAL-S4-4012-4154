@@ -317,7 +317,7 @@
                 <i class="fas fa-phone"></i> <?= $client['msisdn'] ?>
             </p>
         </div>
-        <a href="<?= base_url('client/logout') ?>" class="logout-btn">
+        <a href="<?= base_url('client/login') ?>" class="logout-btn">
             <i class="fas fa-sign-out-alt"></i>
         </a>
     </header>

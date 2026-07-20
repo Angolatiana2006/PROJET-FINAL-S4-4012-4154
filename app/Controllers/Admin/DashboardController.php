@@ -5,6 +5,7 @@ namespace App\Controllers\Admin;
 use App\Controllers\BaseController;
 use App\Models\TransactionModel;
 use App\Models\GainModel;
+use App\Models\ExternalTransactionModel;
 
 class DashboardController extends BaseController
 {
@@ -15,6 +16,7 @@ class DashboardController extends BaseController
     {
         $this->transactionModel = new TransactionModel();
         $this->gainModel = new GainModel();
+            $this->externalTransactionModel = new ExternalTransactionModel();
     }
 
     /**
@@ -45,6 +47,11 @@ class DashboardController extends BaseController
         
         // Statistiques mensuelles
         $monthlyStats = $this->transactionModel->getMonthlyStats();
+
+        // Statistiques internes et externes
+$internalStats = $this->getInternalStats($period);
+$externalStats = $this->getExternalStats($period);
+$externalOperators = $this->externalTransactionModel->getStatsByOperator($period);
 
         // Labels pour les types d'opérations
         $typeLabels = [
@@ -79,8 +86,6 @@ class DashboardController extends BaseController
                 <a href="'.base_url('admin/dashboard?period=year').'" class="btn btn-white '.($period == 'year' ? 'active' : '').'">
                     <i class="fas fa-calendar-year"></i> Année
                 </a>
-
-                
             ',
             'period' => $period,
             'periodLabel' => $this->getPeriodLabel($period),
@@ -92,6 +97,9 @@ class DashboardController extends BaseController
             'topGains' => $topGains,
             'monthlyStats' => $monthlyStats,
             'chartData' => $chartData,
+            'internalStats' => $internalStats,
+'externalStats' => $externalStats,
+'externalOperators' => $externalOperators,
         ];
 
         return view('admin/dashboard/index', $data);
@@ -154,4 +162,86 @@ class DashboardController extends BaseController
         ];
         return $labels[$period] ?? $period;
     }
+
+    /**
+ * Récupère les statistiques des transferts internes
+ */
+private function getInternalStats($period)
+{
+    $db = \Config\Database::connect();
+    $builder = $db->table('transactions t')
+                  ->where('t.status', 'completed')
+                  ->where('t.operation_type', 'transfer')
+                  ->where('t.is_external', 0);
+
+    switch ($period) {
+        case 'today':
+            $builder->where('DATE(t.created_at)', date('Y-m-d'));
+            break;
+        case 'week':
+            $builder->where('t.created_at >=', date('Y-m-d', strtotime('-7 days')));
+            break;
+        case 'month':
+            $builder->where('t.created_at >=', date('Y-m-d', strtotime('-30 days')));
+            break;
+        case 'year':
+            $builder->where('t.created_at >=', date('Y-m-d', strtotime('-365 days')));
+            break;
+    }
+
+    $result = $builder->select('
+        SUM(t.fee_amount) as total_gains,
+        COUNT(*) as total_transactions,
+        SUM(t.amount + t.fee_amount) as total_volume,
+        AVG(t.fee_amount) as avg_gain
+    ')->get()->getRowArray();
+
+    return [
+        'total_gains' => (float) ($result['total_gains'] ?? 0),
+        'total_transactions' => (int) ($result['total_transactions'] ?? 0),
+        'total_volume' => (float) ($result['total_volume'] ?? 0),
+        'avg_gain' => (float) ($result['avg_gain'] ?? 0),
+    ];
+}
+
+/**
+ * Récupère les statistiques des transferts externes
+ */
+private function getExternalStats($period)
+{
+    $db = \Config\Database::connect();
+    $builder = $db->table('transactions t')
+                  ->where('t.status', 'completed')
+                  ->where('t.operation_type', 'transfer')
+                  ->where('t.is_external', 1);
+
+    switch ($period) {
+        case 'today':
+            $builder->where('DATE(t.created_at)', date('Y-m-d'));
+            break;
+        case 'week':
+            $builder->where('t.created_at >=', date('Y-m-d', strtotime('-7 days')));
+            break;
+        case 'month':
+            $builder->where('t.created_at >=', date('Y-m-d', strtotime('-30 days')));
+            break;
+        case 'year':
+            $builder->where('t.created_at >=', date('Y-m-d', strtotime('-365 days')));
+            break;
+    }
+
+    $result = $builder->select('
+        SUM(t.fee_amount) as total_gains,
+        COUNT(*) as total_transactions,
+        SUM(t.amount + t.fee_amount) as total_volume,
+        AVG(t.fee_amount) as avg_gain
+    ')->get()->getRowArray();
+
+    return [
+        'total_gains' => (float) ($result['total_gains'] ?? 0),
+        'total_transactions' => (int) ($result['total_transactions'] ?? 0),
+        'total_volume' => (float) ($result['total_volume'] ?? 0),
+        'avg_gain' => (float) ($result['avg_gain'] ?? 0),
+    ];
+}
 }

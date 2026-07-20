@@ -22,16 +22,43 @@ class FeeConfigModel extends Model
 
     /**
      * Récupère les frais pour un montant et un type d'opération
+     * VERSION SIMPLIFIÉE - REQUÊTE SQL DIRECTE
      */
     public function getFee($operationType, $amount)
     {
-        $result = $this->where('operation_type', $operationType)
-                       ->where('min_amount <=', $amount)
-                       ->where('max_amount >=', $amount)
-                       ->where('is_active', true)
-                       ->first();
+        $db = \Config\Database::connect();
         
-        return $result ? $result['fee_amount'] : 0;
+        // Requête SQL directe pour éviter tout problème
+        $sql = "SELECT fee_amount FROM fee_configs 
+                WHERE operation_type = ? 
+                AND ? BETWEEN min_amount AND max_amount 
+                AND is_active = 1 
+                LIMIT 1";
+        
+        $result = $db->query($sql, [$operationType, $amount])->getRow();
+        
+        if ($result) {
+            return (float) $result->fee_amount;
+        }
+        
+        // Si aucune tranche trouvée, retourner 0
+        return 0;
+    }
+
+    /**
+     * Récupère la configuration complète pour un montant
+     */
+    public function getFeeConfig($operationType, $amount)
+    {
+        $db = \Config\Database::connect();
+        
+        $sql = "SELECT * FROM fee_configs 
+                WHERE operation_type = ? 
+                AND ? BETWEEN min_amount AND max_amount 
+                AND is_active = 1 
+                LIMIT 1";
+        
+        return $db->query($sql, [$operationType, $amount])->getRowArray();
     }
 
     /**
@@ -73,55 +100,7 @@ class FeeConfigModel extends Model
     }
 
     /**
-     * Vérifie si une tranche existe déjà
-     */
-    public function rangeExists($operationType, $minAmount, $maxAmount, $excludeId = null)
-    {
-        $builder = $this->where('operation_type', $operationType)
-                        ->where('is_active', true)
-                        ->groupStart()
-                            ->where('min_amount <=', $minAmount)
-                            ->where('max_amount >=', $minAmount)
-                        ->groupEnd()
-                        ->orGroupStart()
-                            ->where('min_amount <=', $maxAmount)
-                            ->where('max_amount >=', $maxAmount)
-                        ->groupEnd()
-                        ->orGroupStart()
-                            ->where('min_amount >=', $minAmount)
-                            ->where('max_amount <=', $maxAmount)
-                        ->groupEnd();
-
-        if ($excludeId) {
-            $builder->where('id !=', $excludeId);
-        }
-
-        return $builder->countAllResults() > 0;
-    }
-
-    /**
-     * Active ou désactive une configuration
-     */
-    public function toggleStatus($id)
-    {
-        $config = $this->find($id);
-        if ($config) {
-            $newStatus = !$config['is_active'];
-            return $this->update($id, ['is_active' => $newStatus]);
-        }
-        return false;
-    }
-
-    /**
-     * Récupère le libellé d'un type d'opération
-     */
-    public function getTypeLabel($type)
-    {
-        return self::OPERATION_TYPES[$type] ?? $type;
-    }
-
-    /**
-     * Récupère tous les types avec leurs libellés
+     * Récupère les types d'opérations
      */
     public function getTypes()
     {
@@ -129,32 +108,10 @@ class FeeConfigModel extends Model
     }
 
     /**
-     * Validation des données avant insertion
+     * Récupère le libellé d'un type
      */
-    public function validateData($data)
+    public function getTypeLabel($type)
     {
-        $errors = [];
-
-        // Vérifier que min_amount < max_amount
-        if ($data['min_amount'] >= $data['max_amount']) {
-            $errors[] = 'Le montant minimum doit être inférieur au montant maximum';
-        }
-
-        // Vérifier que les montants sont positifs
-        if ($data['min_amount'] < 0 || $data['max_amount'] < 0) {
-            $errors[] = 'Les montants doivent être positifs';
-        }
-
-        // Vérifier que le type est valide
-        if (!isset(self::OPERATION_TYPES[$data['operation_type']])) {
-            $errors[] = 'Type d\'opération invalide';
-        }
-
-        // Vérifier les chevauchements
-        if ($this->rangeExists($data['operation_type'], $data['min_amount'], $data['max_amount'], $data['id'] ?? null)) {
-            $errors[] = 'Une tranche existe déjà pour cette plage de montants';
-        }
-
-        return $errors;
+        return self::OPERATION_TYPES[$type] ?? $type;
     }
 }

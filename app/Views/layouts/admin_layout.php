@@ -512,7 +512,7 @@
                 </div>
                 <div class="header-actions">
                     <?= $header_actions ?? '' ?>
-                    <a href="<?= base_url('auth/logout') ?>" class="btn-logout" title="Déconnexion">
+                    <a href="<?= base_url('client/login') ?>" class="btn-logout" title="Déconnexion">
                         <i class="fas fa-sign-out-alt"></i>
                     </a>
                 </div>
@@ -539,6 +539,11 @@
                    class="nav-btn <?= $currentSegment === 'fees' ? 'active' : '' ?>">
                     <i class="fas fa-coins"></i> Barèmes
                 </a>
+                <a href="<?= base_url('admin/external-operators') ?>" 
+                   class="nav-btn <?= $currentSegment === 'external-operators' ? 'active' : '' ?>">
+                    <i class="fas fa-coins"></i> les autres operateurs
+                </a>
+                
            
             </nav>
         </header>

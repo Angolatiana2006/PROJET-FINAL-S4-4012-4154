@@ -14,19 +14,16 @@ class PrefixController extends BaseController
         $this->prefixModel = new PrefixModel();
     }
 
-    /**
-     * Affiche la liste des préfixes
-     */
-    public function index()
-    {
-        $data = [
-            'prefixes' => $this->prefixModel->findAll(),
-            'stats' => $this->prefixModel->getStats(),
-            'title' => 'Gestion des préfixes',
-        ];
+   public function index()
+{
+    $data = [
+        'prefixes' => $this->prefixModel->getActivePrefixes(), // UNIQUEMENT internes
+        'stats' => $this->prefixModel->getStats(),
+        'title' => 'Gestion des préfixes',
+    ];
 
-        return view('admin/prefixes/index', $data);
-    }
+    return view('admin/prefixes/index', $data);
+}
 
     /**
      * Affiche le formulaire de création

@@ -146,34 +146,60 @@
             color: #C62828;
         }
 
-        .amount-presets {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
+        .fee-display {
+            background: #FFF3E0;
+            border-radius: 12px;
+            padding: 12px 16px;
             margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #FFE0B2;
         }
 
-        .amount-presets .preset-btn {
-            padding: 8px;
-            border: 2px solid #EEF2F7;
-            border-radius: 10px;
-            background: white;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 600;
+        .fee-display .fee-label {
             font-size: 14px;
-            color: #2D3436;
+            color: #E65100;
+            font-weight: 500;
         }
 
-        .amount-presets .preset-btn:hover {
-            border-color: var(--primary-color);
-            background: #F0EEFF;
+        .fee-display .fee-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #E65100;
         }
 
-        .amount-presets .preset-btn.active {
-            border-color: var(--primary-color);
-            background: var(--primary-color);
-            color: white;
+        .fee-display .fee-value.free {
+            color: #2E7D32;
+        }
+
+        .total-display {
+            background: #E8F5E9;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #C8E6C9;
+        }
+
+        .total-display .total-label {
+            font-size: 14px;
+            color: #2E7D32;
+            font-weight: 500;
+        }
+
+        .total-display .total-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2E7D32;
+        }
+
+        .info-text {
+            font-size: 13px;
+            color: #6C7A89;
+            margin-top: 4px;
         }
 
         @media (max-width: 480px) {
@@ -211,34 +237,43 @@
             <div class="amount"><?= number_format($client['balance'], 0) ?> Ar</div>
         </div>
 
-        <form action="<?= base_url('client/do-deposit') ?>" method="POST">
+        <form action="<?= base_url('client/do-deposit') ?>" method="POST" id="depositForm">
             <?= csrf_field() ?>
             
-            <!-- Montants prédéfinis -->
-            <div class="amount-presets">
-                <button type="button" class="preset-btn" onclick="setAmount(5000)">5 000</button>
-                <button type="button" class="preset-btn" onclick="setAmount(10000)">10 000</button>
-                <button type="button" class="preset-btn" onclick="setAmount(25000)">25 000</button>
-                <button type="button" class="preset-btn" onclick="setAmount(50000)">50 000</button>
-                <button type="button" class="preset-btn" onclick="setAmount(100000)">100 000</button>
-                <button type="button" class="preset-btn" onclick="setAmount(250000)">250 000</button>
-            </div>
-
             <div class="form-group">
                 <label>
                     <i class="fas fa-money-bill-wave"></i> Montant à déposer (Ar)
                 </label>
-                <input type="number" 
+                <input type="text" 
                        class="form-control-custom" 
                        name="amount" 
                        id="amount"
                        placeholder="Ex: 10000"
-                       min="1"
-                       step="100"
+                       oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                       onkeyup="calculateFee(this.value)"
                        required>
+                <small class="info-text">
+                    <i class="fas fa-info-circle"></i> Entrez uniquement des chiffres
+                </small>
             </div>
 
-            <button type="submit" class="btn-submit">
+            <!-- Affichage des frais -->
+            <div id="feeContainer" style="display: none;">
+                <div class="fee-display">
+                    <span class="fee-label">
+                        <i class="fas fa-coins"></i> Frais de dépôt
+                    </span>
+                    <span class="fee-value" id="feeDisplay">0 Ar</span>
+                </div>
+                <div class="total-display">
+                    <span class="total-label">
+                        <i class="fas fa-arrow-right"></i> Total à débiter
+                    </span>
+                    <span class="total-value" id="totalDisplay">0 Ar</span>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit" id="submitBtn">
                 <i class="fas fa-arrow-down"></i> Déposer
             </button>
         </form>
@@ -251,17 +286,45 @@
 </div>
 
 <script>
-function setAmount(amount) {
-    document.getElementById('amount').value = amount;
+function calculateFee(amount) {
+    const feeContainer = document.getElementById('feeContainer');
+    const feeDisplay = document.getElementById('feeDisplay');
+    const totalDisplay = document.getElementById('totalDisplay');
     
-    // Effet visuel
-    const btns = document.querySelectorAll('.preset-btn');
-    btns.forEach(btn => {
-        btn.classList.remove('active');
-        if (btn.textContent.replace(/\s/g, '') === amount.toString()) {
-            btn.classList.add('active');
-        }
-    });
+    // Nettoyer le montant (enlever tout sauf les chiffres)
+    amount = amount.replace(/[^0-9]/g, '');
+    const numericAmount = parseFloat(amount);
+    
+    if (isNaN(numericAmount) || numericAmount <= 0) {
+        feeContainer.style.display = 'none';
+        return;
+    }
+    
+    // Appel AJAX pour calculer les frais
+    fetch(`<?= base_url('api/fees/calculate') ?>?type=deposit&amount=${numericAmount}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                const fee = data.data.fee;
+                const total = data.data.total;
+                
+                feeContainer.style.display = 'block';
+                
+                if (fee === 0) {
+                    feeDisplay.textContent = '0 Ar (Gratuit)';
+                    feeDisplay.className = 'fee-value free';
+                } else {
+                    feeDisplay.textContent = fee.toLocaleString() + ' Ar';
+                    feeDisplay.className = 'fee-value';
+                }
+                
+                totalDisplay.textContent = total.toLocaleString() + ' Ar';
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            feeContainer.style.display = 'none';
+        });
 }
 </script>
 

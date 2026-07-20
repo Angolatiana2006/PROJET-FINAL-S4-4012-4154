@@ -225,36 +225,35 @@ class FeeController extends BaseController
         ]);
     }
 
-    /**
-     * Calculer les frais pour un montant (API)
-     */
-    public function calculateFee()
-    {
-        $operationType = $this->request->getGet('type');
-        $amount = $this->request->getGet('amount');
+   /**
+ * Calculer les frais pour un montant (API)
+ */
+public function calculateFee()
+{
+    $operationType = $this->request->getGet('type');
+    $amount = $this->request->getGet('amount');
 
-        if (!$operationType || !$amount) {
-            return $this->response->setJSON([
-                'status' => 'error',
-                'message' => 'Paramètres manquants'
-            ]);
-        }
-
-        $fee = $this->feeModel->getFee($operationType, $amount);
-        $config = $this->feeModel->where('operation_type', $operationType)
-                                 ->where('min_amount <=', $amount)
-                                 ->where('max_amount >=', $amount)
-                                 ->where('is_active', true)
-                                 ->first();
-
+    if (!$operationType || !$amount) {
         return $this->response->setJSON([
-            'status' => 'success',
-            'data' => [
-                'amount' => $amount,
-                'fee' => $fee,
-                'total' => $amount + $fee,
-                'config' => $config
-            ]
+            'status' => 'error',
+            'message' => 'Paramètres manquants'
         ]);
     }
+
+    $amount = (float) $amount;
+    
+    // Utiliser la méthode corrigée
+    $fee = $this->feeModel->getFee($operationType, $amount);
+    $config = $this->feeModel->getFeeConfig($operationType, $amount);
+
+    return $this->response->setJSON([
+        'status' => 'success',
+        'data' => [
+            'amount' => $amount,
+            'fee' => (float) $fee,
+            'total' => $amount + (float) $fee,
+            'config' => $config
+        ]
+    ]);
+}
 }

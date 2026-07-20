@@ -285,7 +285,13 @@
             <button type="submit" class="btn-login">
                 <i class="fas fa-sign-in-alt"></i> Se connecter
             </button>
+
+            
         </form>
+
+                 <a href="<?= base_url('admin/dashboard') ?>" class="btn-admin">
+            <i class="fas fa-user-shield"></i> Se connecter en tant qu'administrateur
+        </a>
 
         <!-- Footer -->
         <div class="login-footer">

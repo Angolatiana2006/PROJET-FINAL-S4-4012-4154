@@ -146,47 +146,84 @@
             color: #C62828;
         }
 
-        .amount-presets {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-
-        .amount-presets .preset-btn {
-            padding: 8px;
-            border: 2px solid #EEF2F7;
-            border-radius: 10px;
-            background: white;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 600;
-            font-size: 14px;
-            color: #2D3436;
-        }
-
-        .amount-presets .preset-btn:hover {
-            border-color: #FF6B6B;
-            background: #FFEBEE;
-        }
-
-        .amount-presets .preset-btn.active {
-            border-color: #FF6B6B;
-            background: #FF6B6B;
-            color: white;
-        }
-
-        .fee-info {
+        /* Style pour l'affichage des frais */
+        .fee-display {
             background: #FFF3E0;
-            border-radius: 10px;
-            padding: 10px 14px;
+            border-radius: 12px;
+            padding: 12px 16px;
             margin-bottom: 16px;
-            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #FFE0B2;
+        }
+
+        .fee-display .fee-label {
+            font-size: 14px;
+            color: #E65100;
+            font-weight: 500;
+        }
+
+        .fee-display .fee-value {
+            font-size: 18px;
+            font-weight: 700;
             color: #E65100;
         }
 
-        .fee-info i {
-            margin-right: 8px;
+        .fee-display .fee-value.free {
+            color: #2E7D32;
+        }
+
+        .total-display {
+            background: #FFEBEE;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #FFCDD2;
+        }
+
+        .total-display .total-label {
+            font-size: 14px;
+            color: #C62828;
+            font-weight: 500;
+        }
+
+        .total-display .total-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #C62828;
+        }
+
+        .info-text {
+            font-size: 13px;
+            color: #6C7A89;
+            margin-top: 4px;
+        }
+
+        .new-balance-display {
+            background: #E8F5E9;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #C8E6C9;
+        }
+
+        .new-balance-display .new-balance-label {
+            font-size: 14px;
+            color: #2E7D32;
+            font-weight: 500;
+        }
+
+        .new-balance-display .new-balance-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2E7D32;
         }
 
         @media (max-width: 480px) {
@@ -224,39 +261,49 @@
             <div class="amount"><?= number_format($client['balance'], 0) ?> Ar</div>
         </div>
 
-        <div class="fee-info">
-            <i class="fas fa-info-circle"></i>
-            Des frais peuvent s'appliquer selon le montant retiré
-        </div>
-
-        <form action="<?= base_url('client/do-withdrawal') ?>" method="POST">
+        <form action="<?= base_url('client/do-withdrawal') ?>" method="POST" id="withdrawalForm">
             <?= csrf_field() ?>
             
-            <!-- Montants prédéfinis -->
-            <div class="amount-presets">
-                <button type="button" class="preset-btn" onclick="setAmount(1000)">1 000</button>
-                <button type="button" class="preset-btn" onclick="setAmount(5000)">5 000</button>
-                <button type="button" class="preset-btn" onclick="setAmount(10000)">10 000</button>
-                <button type="button" class="preset-btn" onclick="setAmount(25000)">25 000</button>
-                <button type="button" class="preset-btn" onclick="setAmount(50000)">50 000</button>
-                <button type="button" class="preset-btn" onclick="setAmount(100000)">100 000</button>
-            </div>
-
             <div class="form-group">
                 <label>
                     <i class="fas fa-money-bill-wave"></i> Montant à retirer (Ar)
                 </label>
-                <input type="number" 
+                <input type="text" 
                        class="form-control-custom" 
                        name="amount" 
                        id="amount"
                        placeholder="Ex: 10000"
-                       min="1"
-                       step="100"
+                       oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                       onkeyup="calculateFee(this.value)"
                        required>
+                <small class="info-text">
+                    <i class="fas fa-info-circle"></i> Entrez uniquement des chiffres
+                </small>
             </div>
 
-            <button type="submit" class="btn-submit">
+            <!-- Affichage des frais -->
+            <div id="feeContainer" style="display: none;">
+                <div class="fee-display">
+                    <span class="fee-label">
+                        <i class="fas fa-coins"></i> Frais de retrait
+                    </span>
+                    <span class="fee-value" id="feeDisplay">0 Ar</span>
+                </div>
+                <div class="total-display">
+                    <span class="total-label">
+                        <i class="fas fa-arrow-right"></i> Total à débiter
+                    </span>
+                    <span class="total-value" id="totalDisplay">0 Ar</span>
+                </div>
+                <div class="new-balance-display">
+                    <span class="new-balance-label">
+                        <i class="fas fa-wallet"></i> Nouveau solde
+                    </span>
+                    <span class="new-balance-value" id="newBalanceDisplay">0 Ar</span>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit" id="submitBtn">
                 <i class="fas fa-arrow-up"></i> Retirer
             </button>
         </form>
@@ -269,16 +316,63 @@
 </div>
 
 <script>
-function setAmount(amount) {
-    document.getElementById('amount').value = amount;
+function calculateFee(amount) {
+    const feeContainer = document.getElementById('feeContainer');
+    const feeDisplay = document.getElementById('feeDisplay');
+    const totalDisplay = document.getElementById('totalDisplay');
+    const newBalanceDisplay = document.getElementById('newBalanceDisplay');
+    const submitBtn = document.getElementById('submitBtn');
+    const currentBalance = <?= $client['balance'] ?>;
     
-    const btns = document.querySelectorAll('.preset-btn');
-    btns.forEach(btn => {
-        btn.classList.remove('active');
-        if (btn.textContent.replace(/\s/g, '') === amount.toString()) {
-            btn.classList.add('active');
-        }
-    });
+    // Nettoyer le montant
+    amount = amount.replace(/[^0-9]/g, '');
+    const numericAmount = parseFloat(amount);
+    
+    if (isNaN(numericAmount) || numericAmount <= 0) {
+        feeContainer.style.display = 'none';
+        submitBtn.disabled = false;
+        return;
+    }
+    
+    // Appel AJAX pour calculer les frais
+    fetch(`<?= base_url('api/fees/calculate') ?>?type=withdrawal&amount=${numericAmount}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                const fee = data.data.fee;
+                const total = data.data.total;
+                const newBalance = currentBalance - total;
+                
+                feeContainer.style.display = 'block';
+                
+                // Afficher les frais
+                if (fee === 0) {
+                    feeDisplay.textContent = '0 Ar (Gratuit)';
+                    feeDisplay.className = 'fee-value free';
+                } else {
+                    feeDisplay.textContent = fee.toLocaleString() + ' Ar';
+                    feeDisplay.className = 'fee-value';
+                }
+                
+                // Afficher le total à débiter
+                totalDisplay.textContent = total.toLocaleString() + ' Ar';
+                
+                // Afficher le nouveau solde
+                if (newBalance < 0) {
+                    newBalanceDisplay.textContent = 'Solde insuffisant !';
+                    newBalanceDisplay.style.color = '#C62828';
+                    submitBtn.disabled = true;
+                } else {
+                    newBalanceDisplay.textContent = newBalance.toLocaleString() + ' Ar';
+                    newBalanceDisplay.style.color = '#2E7D32';
+                    submitBtn.disabled = false;
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            feeContainer.style.display = 'none';
+        });
 }
 </script>
 

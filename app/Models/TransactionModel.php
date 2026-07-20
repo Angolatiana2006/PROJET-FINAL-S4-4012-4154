@@ -11,7 +11,7 @@ class TransactionModel extends Model
     protected $allowedFields = [
         'transaction_id', 'sender_id', 'receiver_id', 
         'operation_type', 'amount', 'fee_amount', 'total_amount',
-        'status', 'description', 'created_at'
+        'status', 'description', 'is_external', 'external_operator', 'created_at'
     ];
     protected $useTimestamps = true;
     protected $createdField = 'created_at';

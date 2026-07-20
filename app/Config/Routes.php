@@ -8,7 +8,7 @@ $routes = Services::routes();
 // REDIRECTION RACINE VERS DASHBOARD ADMIN
 // ============================================
 $routes->get('/', function() {
-    return redirect()->to('/admin/dashboard');
+    return redirect()->to('/client/login');
 });
 
 // ============================================
@@ -102,3 +102,16 @@ $routes->post('client/do-transfer', 'ClientController::doTransfer');
 $routes->get('client/history', 'ClientController::history');
 $routes->get('client/logout', 'ClientController::logout');
 $routes->get('client/debug', 'ClientController::debugTransactions');
+
+// ============================================
+// ROUTES ADMIN - OPÉRATEURS EXTERNES
+// ============================================
+$routes->group('admin/external-operators', ['namespace' => 'App\Controllers\Admin'], function($routes) {
+    $routes->get('/', 'ExternalOperatorController::index');
+    $routes->get('create', 'ExternalOperatorController::create');
+    $routes->post('store', 'ExternalOperatorController::store');
+    $routes->get('edit/(:num)', 'ExternalOperatorController::edit/$1');
+    $routes->post('update/(:num)', 'ExternalOperatorController::update/$1');
+    $routes->delete('delete/(:num)', 'ExternalOperatorController::delete/$1');
+    $routes->post('toggle/(:num)', 'ExternalOperatorController::toggle/$1');
+});
