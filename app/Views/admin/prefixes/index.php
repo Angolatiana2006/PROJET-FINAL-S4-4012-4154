@@ -37,7 +37,7 @@
 <div class="card-dashboard">
     <div class="card-header">
         <h5>
-            <i class="fas fa-tower-cell"></i> Liste des préfixes
+            <i class="fas fa-tower-cell"></i> Liste des préfixess
         </h5>
         <a href="<?= base_url('admin/prefixes/create') ?>" class="btn-primary-custom btn-sm">
             <i class="fas fa-plus-circle"></i> Ajouter
