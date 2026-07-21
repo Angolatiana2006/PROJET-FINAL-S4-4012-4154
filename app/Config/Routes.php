@@ -116,3 +116,6 @@ $routes->group('admin/external-operators', ['namespace' => 'App\Controllers\Admi
     $routes->delete('delete/(:num)', 'ExternalOperatorController::delete/$1');
     $routes->post('toggle/(:num)', 'ExternalOperatorController::toggle/$1');
 });
+
+$routes->get('admin/promotions', 'Admin::promotions');
+$routes->get('admin/promotions/update', 'Admin::updatePromotion');

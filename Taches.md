@@ -73,3 +73,8 @@ Vues pages
 
 Layout//pour le css
  client_layout.php
+
+
+ promotion meme operateur:
+ frais de transfert vers meme operateur
+ atao anaty base ny valeur
