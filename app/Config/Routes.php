@@ -54,6 +54,7 @@ $routes->group('admin/fees', ['namespace' => 'App\Controllers\Admin'], function(
 $routes->group('admin/dashboard', ['namespace' => 'App\Controllers\Admin'], function($routes) {
     $routes->get('/', 'DashboardController::index');
     $routes->get('export', 'DashboardController::export');
+    $routes->post('reset', 'DashboardController::resetData');
 });
 
 // Redirection admin

@@ -3,75 +3,77 @@
 <?= $this->section('content') ?>
 
 <!-- Statistiques 
-<div class="row g-3 mb-4">
-    <div class="col-md-3">
-        <div class="stat-card">
-            <div class="d-flex justify-content-between align-items-start">
-                <div>
-                    <p class="stat-label">
-                        <i class="fas fa-users"></i> Total clients
-                    </p>
-                    <h3 class="stat-number"><?= $stats['total'] ?? 0 ?></h3>
-                </div>
-               
+<div class="stats-grid mb-4">
+    <div class="stat-card">
+        <div class="stat-top">
+            <div>
+                <p class="stat-label">
+                    <i class="fas fa-users"></i> Total clients
+                </p>
+                <h3 class="stat-number"><?= $stats['total'] ?? 0 ?></h3>
+            </div>
+            <div class="stat-icon">
+                <i class="fas fa-users"></i>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="stat-card">
-            <div class="d-flex justify-content-between align-items-start">
-                <div>
-                    <p class="stat-label">
-                        <i class="fas fa-check-circle"></i> Actifs
-                    </p>
-                    <h3 class="stat-number" style="color: #2E7D32;"><?= $stats['active'] ?? 0 ?></h3>
-                </div>
-             
+    
+    <div class="stat-card">
+        <div class="stat-top">
+            <div>
+                <p class="stat-label">
+                    <i class="fas fa-circle-check"></i> Actifs
+                </p>
+                <h3 class="stat-number" style="color: #10B981;"><?= $stats['active'] ?? 0 ?></h3>
+            </div>
+            <div class="stat-icon">
+                <i class="fas fa-circle-check"></i>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="stat-card">
-            <div class="d-flex justify-content-between align-items-start">
-                <div>
-                    <p class="stat-label">
-                        <i class="fas fa-pause-circle"></i> Suspendus
-                    </p>
-                    <h3 class="stat-number" style="color: #E65100;"><?= $stats['suspended'] ?? 0 ?></h3>
-                </div>
-               
+    
+    <div class="stat-card">
+        <div class="stat-top">
+            <div>
+                <p class="stat-label">
+                    <i class="fas fa-pause-circle"></i> Suspendus
+                </p>
+                <h3 class="stat-number" style="color: #F59E0B;"><?= $stats['suspended'] ?? 0 ?></h3>
+            </div>
+            <div class="stat-icon">
+                <i class="fas fa-pause-circle"></i>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="stat-card">
-            <div class="d-flex justify-content-between align-items-start">
-                <div>
-                    <p class="stat-label">
-                        <i class="fas fa-wallet"></i> Solde total
-                    </p>
-                    <h3 class="stat-number" style="color: #1565C0;">
-                        <?= number_format($stats['total_balance'] ?? 0, 0) ?> Ar
-                    </h3>
-                  
-                </div>
-               
+    
+    <div class="stat-card">
+        <div class="stat-top">
+            <div>
+                <p class="stat-label">
+                    <i class="fas fa-wallet"></i> Solde total
+                </p>
+                <h3 class="stat-number" style="color: #3B82F6;">
+                    <?= number_format($stats['total_balance'] ?? 0, 0) ?> Ar
+                </h3>
+                <span class="stat-period">Moy: <?= number_format($stats['avg_balance'] ?? 0, 0) ?> Ar</span>
+            </div>
+            <div class="stat-icon">
+                <i class="fas fa-wallet"></i>
             </div>
         </div>
     </div>
 </div>
 -->
-
 <!-- Top clients 
 <div class="row g-3 mb-4">
     <div class="col-md-6">
-        <div class="admin-card">
-            <div class="admin-card-header">
+        <div class="card-dashboard">
+            <div class="card-header">
                 <h5>
-                    <i class="fas fa-trophy" style="color: #FFD700;"></i> Clients les plus actifs
+                    <i class="fas fa-trophy" style="color: #F59E0B;"></i> Clients les plus actifs
                 </h5>
             </div>
-            <div class="admin-card-body">
+            <div class="card-body">
                 <?php if (empty($mostActive)): ?>
                     <div class="text-center py-3 text-muted">
                         <i class="fas fa-inbox"></i> Aucune donnée
@@ -106,13 +108,13 @@
     </div>
     
     <div class="col-md-6">
-        <div class="admin-card">
-            <div class="admin-card-header">
+        <div class="card-dashboard">
+            <div class="card-header">
                 <h5>
-                    <i class="fas fa-crown" style="color: #FFD700;"></i> Clients les plus riches
+                    <i class="fas fa-crown" style="color: #F59E0B;"></i> Clients les plus riches
                 </h5>
             </div>
-            <div class="admin-card-body">
+            <div class="card-body">
                 <?php if (empty($richest)): ?>
                     <div class="text-center py-3 text-muted">
                         <i class="fas fa-inbox"></i> Aucune donnée
@@ -131,7 +133,7 @@
                                 </small>
                             </div>
                             <div class="text-end">
-                                <span class="badge" style="background: #2E7D32; color: white;">
+                                <span class="badge" style="background: #10B981; color: white;">
                                     <?= number_format($client['balance'] ?? 0, 0) ?> Ar
                                 </span>
                             </div>
@@ -143,10 +145,9 @@
     </div>
 </div>
                     -->
-
 <!-- Liste des clients -->
-<div class="admin-card">
-    <div class="admin-card-header">
+<div class="card-dashboard">
+    <div class="card-header">
         <h5>
             <i class="fas fa-list"></i> Liste des clients
         </h5>
@@ -154,10 +155,12 @@
             <span class="text-muted me-3" style="font-size: 13px;">
                 <i class="fas fa-user"></i> <?= count($clients) ?> clients
             </span>
-         
+            <a href="<?= base_url('admin/clients/create') ?>" class="btn-primary-custom btn-sm">
+                <i class="fas fa-plus-circle"></i> Ajouter
+            </a>
         </div>
     </div>
-    <div class="admin-card-body">
+    <div class="card-body">
         <?php if (empty($clients)): ?>
             <div class="text-center py-4 text-muted">
                 <i class="fas fa-inbox" style="font-size: 32px;"></i>
@@ -168,7 +171,6 @@
                 <table class="table table-admin">
                     <thead>
                         <tr>
-                          
                             <th>Numéro</th>
                             <th>Nom</th>
                             <th>Solde (Ar)</th>
@@ -180,7 +182,6 @@
                     <tbody>
                         <?php foreach ($clients as $client): ?>
                             <tr>
-                            
                                 <td>
                                     <span class="badge-prefix">
                                         <?= $client['msisdn'] ?>
@@ -196,7 +197,7 @@
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <span style="font-weight: 600; color: <?= $client['balance'] > 0 ? '#2E7D32' : '#C62828' ?>;">
+                                    <span style="font-weight: 600; color: <?= $client['balance'] > 0 ? '#0ca950ff' : '#EF4444' ?>;">
                                         <?= number_format($client['balance'] ?? 0, 0) ?>
                                     </span>
                                     <?php if (($client['transaction_count'] ?? 0) > 0): ?>
@@ -208,15 +209,15 @@
                                 </td>
                                 <td>
                                     <?php if ($client['status'] === 'active'): ?>
-                                        <span class="badge-status active">
+                                        <span class="badge-status completed">
                                             <i class="fas fa-circle-check"></i> Actif
                                         </span>
                                     <?php elseif ($client['status'] === 'suspended'): ?>
-                                        <span class="badge-status" style="background: #FFF3E0; color: #E65100;">
+                                        <span class="badge-status pending">
                                             <i class="fas fa-pause-circle"></i> Suspendu
                                         </span>
                                     <?php else: ?>
-                                        <span class="badge-status inactive">
+                                        <span class="badge-status failed">
                                             <i class="fas fa-ban"></i> Bloqué
                                         </span>
                                     <?php endif; ?>
@@ -237,11 +238,14 @@
                                 </td>
                                 <td>
                                     <div class="d-flex gap-1">
+                                     
+                                        <a href="<?= base_url("admin/clients/edit/{$client['id']}") ?>" 
+                                           class="btn-action-icon btn-edit" title="Modifier">
+                                            <i class="fas fa-pen"></i>
+                                        </a>
                                       
-                                      
-                                       
                                         <button onclick="deleteClient(<?= $client['id'] ?>)" 
-                                                class="btn-action btn-delete" title="Supprimer">
+                                                class="btn-action-icon btn-delete" title="Supprimer">
                                             <i class="fas fa-trash-can"></i>
                                         </button>
                                     </div>

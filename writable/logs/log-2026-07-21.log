@@ -1,0 +1,46 @@
+CRITICAL - 2026-07-21 05:11:42 --> ErrorException: Undefined property: App\Controllers\ClientController::$prefixModel
+[Method: POST, Route: client/do-login]
+in APPPATH/Controllers/ClientController.php on line 46.
+ 1 APPPATH/Controllers/ClientController.php(46): CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\ClientController->doLogin()
+ 3 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 4 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 5 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 7 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+ 8 SYSTEMPATH/rewrite.php(44): require_once('/home/angolatiana/Documents/GitHub/PROJET-FINAL-S4-4012-4154/public/index.php')
+CRITICAL - 2026-07-21 05:11:50 --> ErrorException: Undefined property: App\Controllers\ClientController::$prefixModel
+[Method: POST, Route: client/do-login]
+in APPPATH/Controllers/ClientController.php on line 46.
+ 1 APPPATH/Controllers/ClientController.php(46): CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\ClientController->doLogin()
+ 3 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 4 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 5 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 7 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+ 8 SYSTEMPATH/rewrite.php(44): require_once('/home/angolatiana/Documents/GitHub/PROJET-FINAL-S4-4012-4154/public/index.php')
+CRITICAL - 2026-07-21 05:17:42 --> ErrorException: Undefined property: App\Controllers\ClientController::$prefixModel
+[Method: POST, Route: client/do-login]
+in APPPATH/Controllers/ClientController.php on line 48.
+ 1 APPPATH/Controllers/ClientController.php(48): CodeIgniter\Debug\Exceptions->errorHandler()
+ 2 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\ClientController->doLogin()
+ 3 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 4 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 5 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 6 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 7 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+ 8 SYSTEMPATH/rewrite.php(44): require_once('/home/angolatiana/Documents/GitHub/PROJET-FINAL-S4-4012-4154/public/index.php')
+CRITICAL - 2026-07-21 06:39:29 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "admin/clients/create.php"
+[Method: GET, Route: admin/clients/create]
+in SYSTEMPATH/Exceptions/FrameworkException.php on line 39.
+ 1 SYSTEMPATH/View/View.php(228): CodeIgniter\Exceptions\FrameworkException::forInvalidFile()
+ 2 SYSTEMPATH/Common.php(1250): CodeIgniter\View\View->render()
+ 3 APPPATH/Controllers/Admin/ClientsController.php(101): view()
+ 4 SYSTEMPATH/CodeIgniter.php(951): App\Controllers\Admin\ClientsController->create()
+ 5 SYSTEMPATH/CodeIgniter.php(497): CodeIgniter\CodeIgniter->runController()
+ 6 SYSTEMPATH/CodeIgniter.php(340): CodeIgniter\CodeIgniter->handleRequest()
+ 7 SYSTEMPATH/Boot.php(417): CodeIgniter\CodeIgniter->run()
+ 8 SYSTEMPATH/Boot.php(68): CodeIgniter\Boot::runCodeIgniter()
+ 9 FCPATH/index.php(59): CodeIgniter\Boot::bootWeb()
+10 SYSTEMPATH/rewrite.php(44): require_once('/home/angolatiana/Documents/GitHub/PROJET-FINAL-S4-4012-4154/public/index.php')

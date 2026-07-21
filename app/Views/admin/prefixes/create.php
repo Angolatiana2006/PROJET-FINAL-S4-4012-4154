@@ -7,7 +7,7 @@
         
         <!-- Messages -->
         <?php if (session()->has('error')): ?>
-            <div class="alert alert-custom alert-danger d-flex align-items-center gap-2">
+            <div class="alert-custom alert-danger d-flex align-items-center gap-2">
                 <i class="fas fa-exclamation-circle"></i>
                 <?= session('error') ?>
             </div>
@@ -15,7 +15,7 @@
 
         <?php if (session()->has('errors')): ?>
             <?php foreach (session('errors') as $error): ?>
-                <div class="alert alert-custom alert-danger d-flex align-items-center gap-2">
+                <div class="alert-custom alert-danger d-flex align-items-center gap-2">
                     <i class="fas fa-exclamation-circle"></i>
                     <?= $error ?>
                 </div>
@@ -23,23 +23,25 @@
         <?php endif; ?>
 
         <!-- Formulaire -->
-        <div class="admin-card">
-            <div class="admin-card-header" style="background: linear-gradient(135deg, #6C63FF, #5A52D5); color: white; border-radius: 16px 16px 0 0;">
+        <div class="card-dashboard">
+            <div class="card-header" style="background: linear-gradient(135deg, #4F46E5, #3730A3); color: white; border-radius: 12px 12px 0 0;">
                 <h5 style="color: white;">
-                    <i class="fas fa-plus-circle"></i> Nouveau prefixe
+                    <i class="fas fa-plus-circle"></i> Nouveau préfixe
                 </h5>
-             
+                <span style="font-size: 12px; opacity: 0.8;">
+                    <i class="far fa-clock"></i> <?= date('d/m/Y') ?>
+                </span>
             </div>
-            <div class="admin-card-body">
+            <div class="card-body">
                 <form action="<?= base_url('admin/prefixes/store') ?>" method="POST">
                     <?= csrf_field() ?>
 
                     <div class="mb-4">
-                        <label for="prefix" class="form-label fw-semibold">
-                            <i class="fas fa-hashtag text-primary"></i> Prefixe *
+                        <label for="prefix" class="form-label">
+                            <i class="fas fa-hashtag" style="color: var(--primary-color);"></i> Préfixe *
                         </label>
                         <input type="text" 
-                               class="form-control form-control-custom <?= session('errors.prefix') ? 'is-invalid' : '' ?>" 
+                               class="form-control-custom <?= session('errors.prefix') ? 'is-invalid' : '' ?>" 
                                id="prefix" 
                                name="prefix" 
                                value="<?= old('prefix') ?>"
@@ -47,7 +49,7 @@
                                maxlength="3"
                                pattern="[0-9]{3}"
                                required>
-                        <div class="form-text text-muted">
+                        <div class="form-text">
                             <i class="fas fa-info-circle"></i> 3 chiffres uniquement (ex: 033, 034, 037)
                         </div>
                         <?php if (session('errors.prefix')): ?>
@@ -58,11 +60,11 @@
                     </div>
 
                     <div class="mb-4">
-                        <label for="operator_name" class="form-label fw-semibold">
-                            <i class="fas fa-building text-primary"></i> Nom de l'operateur *
+                        <label for="operator_name" class="form-label">
+                            <i class="fas fa-building" style="color: var(--primary-color);"></i> Nom de l'opérateur *
                         </label>
                         <input type="text" 
-                               class="form-control form-control-custom <?= session('errors.operator_name') ? 'is-invalid' : '' ?>" 
+                               class="form-control-custom <?= session('errors.operator_name') ? 'is-invalid' : '' ?>" 
                                id="operator_name" 
                                name="operator_name" 
                                value="<?= old('operator_name') ?>"
@@ -87,18 +89,20 @@
                             </label>
                             <div>
                                 <span class="fw-semibold">
-                                    <i class="fas fa-check-circle text-success"></i> Actif
+                                    <i class="fas fa-check-circle" style="color: #10B981;"></i> Actif
                                 </span>
-                              
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle"></i> Les préfixes inactifs ne seront pas acceptés
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <div class="d-flex gap-2 justify-content-end border-top pt-4">
-                        <a href="<?= base_url('admin/prefixes') ?>" class="btn btn-secondary-custom">
+                        <a href="<?= base_url('admin/prefixes') ?>" class="btn-secondary-custom">
                             <i class="fas fa-xmark"></i> Annuler
                         </a>
-                        <button type="submit" class="btn btn-primary-custom">
+                        <button type="submit" class="btn-primary-custom">
                             <i class="fas fa-save"></i> Enregistrer
                         </button>
                     </div>
@@ -106,7 +110,6 @@
             </div>
         </div>
         
-        <!-- Info rapide -->
         
         
     </div>

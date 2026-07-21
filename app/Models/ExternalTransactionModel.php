@@ -46,38 +46,27 @@ class ExternalTransactionModel extends Model
         ')->first();
     }
 
-    /**
+ /**
  * Récupère les statistiques par opérateur externe
  */
-public function getStatsByOperator($period = 'today')
+public function getStatsByOperator($period = 'all')
 {
-    $builder = $this->where('status', 'completed');
-
-    switch ($period) {
-        case 'today':
-            $builder->where('DATE(created_at)', date('Y-m-d'));
-            break;
-        case 'week':
-            $builder->where('created_at >=', date('Y-m-d', strtotime('-7 days')));
-            break;
-        case 'month':
-            $builder->where('created_at >=', date('Y-m-d', strtotime('-30 days')));
-            break;
-        case 'year':
-            $builder->where('created_at >=', date('Y-m-d', strtotime('-365 days')));
-            break;
-    }
-
-    return $builder->select('
-        receiver_prefix,
-        receiver_operator,
-        COUNT(*) as total_transactions,
-        SUM(amount) as total_amount,
-        SUM(base_fee) as total_base_fee,
-        SUM(external_fee) as total_external_fee,
-        SUM(total_fee) as total_fee,
-        AVG(fee_percent) as avg_fee_percent
-    ')->groupBy('receiver_prefix')->orderBy('total_amount', 'DESC')->findAll();
+    $db = \Config\Database::connect();
+    
+    $sql = "SELECT 
+                receiver_prefix,
+                receiver_operator,
+                COUNT(*) as total_transactions,
+                SUM(amount) as total_amount,
+                SUM(base_fee) as total_base_fee,
+                SUM(external_fee) as total_external_fee,
+                SUM(total_fee) as total_fee,
+                AVG(fee_percent) as avg_fee_percent
+            FROM external_transactions
+            GROUP BY receiver_prefix
+            ORDER BY total_amount DESC";
+    
+    return $db->query($sql)->getResultArray();
 }
 
     /**

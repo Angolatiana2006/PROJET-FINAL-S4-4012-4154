@@ -5,18 +5,21 @@ namespace App\Controllers;
 use App\Models\ClientModel;
 use App\Models\TransactionModel;
 use App\Models\FeeConfigModel;
+use App\Models\PrefixModel;
 
 class ClientController extends BaseController
 {
     protected $clientModel;
     protected $transactionModel;
     protected $feeModel;
+    protected $prefixModel;
 
     public function __construct()
     {
         $this->clientModel = new ClientModel();
         $this->transactionModel = new TransactionModel();
         $this->feeModel = new FeeConfigModel();
+        $this->prefixModel = new PrefixModel();
     }
 
     /**
@@ -27,8 +30,8 @@ class ClientController extends BaseController
         return view('client/login');
     }
 
-    /**
-     * Traite la connexion client
+        /**
+     * Traite la connexion client - CONNEXION AUTO AVEC CRÉATION
      */
     public function doLogin()
     {
@@ -38,17 +41,61 @@ class ClientController extends BaseController
             return redirect()->back()->with('error', 'Veuillez entrer votre numéro de téléphone');
         }
 
+        // Nettoyer le numéro
         $msisdn = preg_replace('/[^0-9]/', '', $msisdn);
+
+        // ============================================
+        // VÉRIFICATION DU PRÉFIXE (INTERNE UNIQUEMENT)
+        // ============================================
+        $prefix = substr($msisdn, 0, 3);
+        $prefixData = $this->prefixModel->where('prefix', $prefix)->first();
+
+        if (!$prefixData || !$prefixData['is_active']) {
+            return redirect()->back()->with('error', 'Numéro invalide. Le préfixe ' . $prefix . ' n\'est pas reconnu.');
+        }
+
+        if ($prefixData['is_external'] == 1) {
+            return redirect()->back()->with('error', 'Ce numéro appartient à un autre opérateur. Veuillez utiliser un numéro interne.');
+        }
+
+        // ============================================
+        // VÉRIFICATION OU CRÉATION DU CLIENT
+        // ============================================
         $client = $this->clientModel->where('msisdn', $msisdn)->first();
 
         if (!$client) {
-            return redirect()->back()->with('error', 'Numéro de téléphone non trouvé');
+            // Créer un nouveau client automatiquement
+            // full_name est NOT NULL, donc on génère un nom automatique
+            $newClient = [
+                'msisdn' => $msisdn,
+                'full_name' => 'Client ' . substr($msisdn, -4), // Ex: "Client 4567"
+                'email' => null,
+                'balance' => 0,
+                'pin_code' => '0000',
+                'status' => 'active',
+                'user_id' => null,
+            ];
+
+            $clientId = $this->clientModel->insert($newClient);
+            
+            if (!$clientId) {
+                log_message('error', "❌ Erreur création client: " . print_r($this->clientModel->errors(), true));
+                return redirect()->back()->with('error', 'Erreur lors de la création du compte');
+            }
+
+            $client = $this->clientModel->find($clientId);
+            
+            log_message('debug', "✅ Nouveau client créé automatiquement: $msisdn (ID: $clientId)");
         }
 
+        // Vérifier si le client est actif
         if ($client['status'] !== 'active') {
             return redirect()->back()->with('error', 'Votre compte est suspendu. Contactez l\'administrateur.');
         }
 
+        // ============================================
+        // CRÉATION DE LA SESSION
+        // ============================================
         session()->set([
             'client_id' => $client['id'],
             'client_msisdn' => $client['msisdn'],
@@ -298,7 +345,6 @@ class ClientController extends BaseController
     $totalAmount = $this->request->getPost('total_amount');
     $includeFees = $this->request->getPost('include_fees') ? true : false;
     
-    // Nettoyer le montant total
     $totalAmount = preg_replace('/[^0-9]/', '', $totalAmount);
     $totalAmount = (float) $totalAmount;
     
@@ -313,7 +359,6 @@ class ClientController extends BaseController
     $client = $this->clientModel->find($clientId);
     $prefixModel = new \App\Models\PrefixModel();
 
-    // Nettoyer les numéros
     $receivers = [];
     foreach ($receiverMsisdns as $msisdn) {
         $msisdn = preg_replace('/[^0-9]/', '', $msisdn);
@@ -339,25 +384,24 @@ class ClientController extends BaseController
         $prefixData = $prefixModel->where('prefix', $prefix)->first();
         
         if (!$prefixData || !$prefixData['is_active']) {
-            return redirect()->back()->with('error', 'Le numéro ' . $msisdn . ' n\'est pas valide (préfixe inconnu)');
+            return redirect()->back()->with('error', 'Le numéro ' . $msisdn . ' n\'est pas valide');
         }
         
         if ($prefixData['is_external'] == 0) {
             $receiver = $this->clientModel->where('msisdn', $msisdn)->first();
             if (!$receiver) {
-                return redirect()->back()->with('error', 'Le numéro interne ' . $msisdn . ' n\'existe pas dans notre système');
+                return redirect()->back()->with('error', 'Le numéro interne ' . $msisdn . ' n\'existe pas');
             }
             if ($receiver['status'] !== 'active') {
-                return redirect()->back()->with('error', 'Le compte du destinataire ' . $msisdn . ' est suspendu');
+                return redirect()->back()->with('error', 'Le compte du destinataire est suspendu');
             }
         }
     }
 
     // ============================================
-    // CALCUL DU TOTAL À DÉBITER
+    // CALCUL DU TOTAL À DÉBITER AVEC COMMISSIONS EXTERNES
     // ============================================
     $totalDeducted = 0;
-    $totalFee = 0;
     $transactionData = [];
 
     foreach ($receivers as $msisdn) {
@@ -365,15 +409,27 @@ class ClientController extends BaseController
         $prefixData = $prefixModel->where('prefix', $prefix)->first();
         
         // Frais de base
-        $fee = $this->feeModel->getFee('transfer', $amountPerReceiver);
+        $baseFee = $this->feeModel->getFee('transfer', $amountPerReceiver);
+        $fee = $baseFee;
         
-        // Si externe, ajouter commission
+        // Si externe, ajouter la commission EXTERNE
         if ($prefixData && $prefixData['is_external'] == 1) {
-            $externalFee = $prefixModel->calculateExternalFee($prefix, $amountPerReceiver);
-            $fee += $externalFee;
-            $totalFee += $externalFee;
+            // Calcul de la commission externe sur le montant à envoyer
+            $externalFeePercent = (float) $prefixData['external_fee_percent'];
+            $externalFee = $amountPerReceiver * ($externalFeePercent / 100);
             
-            log_message('debug', "📡 Externe $msisdn - Frais: $fee (base + $externalFee)");
+            // Appliquer les limites min/max
+            if (!empty($prefixData['external_min_fee']) && $externalFee < $prefixData['external_min_fee']) {
+                $externalFee = (float) $prefixData['external_min_fee'];
+            }
+            if (!empty($prefixData['external_max_fee']) && $externalFee > $prefixData['external_max_fee']) {
+                $externalFee = (float) $prefixData['external_max_fee'];
+            }
+            
+            // Ajouter la commission externe aux frais totaux
+            $fee += $externalFee;
+            
+            log_message('debug', "📡 Externe $msisdn - Commission externe: $externalFee Ar (${externalFeePercent}%)");
         }
         
         $amountToDeduct = $amountPerReceiver + $fee;
@@ -383,10 +439,15 @@ class ClientController extends BaseController
             'msisdn' => $msisdn,
             'prefixData' => $prefixData,
             'amount' => $amountPerReceiver,
+            'base_fee' => $baseFee,
+            'external_fee' => isset($externalFee) ? $externalFee : 0,
             'fee' => $fee,
             'amountToDeduct' => $amountToDeduct,
-            'amountToSend' => $includeFees ? $amountPerReceiver + $fee : $amountPerReceiver,
+            'amountToSend' => $amountPerReceiver, // Le destinataire reçoit toujours le montant
         ];
+        
+        // Réinitialiser pour le prochain tour
+        unset($externalFee);
     }
 
     // Vérifier le solde
@@ -394,13 +455,10 @@ class ClientController extends BaseController
         return redirect()->back()->with('error', 'Solde insuffisant. Vous avez ' . number_format($client['balance'], 0) . ' Ar');
     }
 
-    // ============================================
-    // EXÉCUTION DE LA TRANSACTION (SANS ROLLBACK)
-    // ============================================
     $db = \Config\Database::connect();
     
     try {
-        // 1. Débiter l'expéditeur DIRECTEMENT
+        // 1. Débiter l'expéditeur
         $db->query("UPDATE clients SET balance = balance - ? WHERE id = ?", [$totalDeducted, $clientId]);
         log_message('debug', "💰 Expéditeur débité: -$totalDeducted Ar");
 
@@ -413,7 +471,7 @@ class ClientController extends BaseController
                     log_message('debug', "✅ Destinataire interne crédité: {$data['msisdn']} (+{$data['amountToSend']} Ar)");
                 }
             } else {
-                log_message('debug', "📡 Destinataire externe: {$data['msisdn']} (pas de crédit)");
+                log_message('debug', "📡 Destinataire externe: {$data['msisdn']} (pas de crédit, commission de {$data['external_fee']} Ar appliquée)");
             }
         }
 
@@ -446,45 +504,46 @@ class ClientController extends BaseController
             log_message('debug', "✅ Transaction insérée: $transactionId");
         }
 
-        // 4. Enregistrer dans external_transactions (si possible, sans bloquer)
-        try {
-            foreach ($transactionData as $data) {
-                if ($data['prefixData'] && $data['prefixData']['is_external'] == 1) {
-                    $externalModel = new \App\Models\ExternalTransactionModel();
-                    
-                    // Récupérer la dernière transaction insérée
-                    $lastTx = $db->table('transactions')
-                                 ->where('sender_id', $clientId)
-                                 ->where('receiver_id', null)
-                                 ->where('is_external', 1)
-                                 ->orderBy('id', 'DESC')
-                                 ->limit(1)
-                                 ->get()
-                                 ->getRowArray();
-                    
-                    if ($lastTx) {
-                        $externalData = [
-                            'transaction_id' => $lastTx['id'],
-                            'sender_id' => $clientId,
-                            'receiver_msisdn' => $data['msisdn'],
-                            'receiver_prefix' => $data['prefixData']['prefix'],
-                            'receiver_operator' => $data['prefixData']['operator_name'],
-                            'amount' => $data['amount'],
-                            'base_fee' => $this->feeModel->getFee('transfer', $data['amount']),
-                            'external_fee' => $data['fee'] - $this->feeModel->getFee('transfer', $data['amount']),
-                            'total_fee' => $data['fee'],
-                            'fee_percent' => $data['prefixData']['external_fee_percent'],
-                            'status' => 'completed',
-                        ];
-                        $externalModel->createExternalTransaction($externalData);
-                        log_message('debug', "✅ External transaction enregistrée pour {$data['msisdn']}");
-                    }
-                }
+        // 4. Enregistrer dans external_transactions (version corrigée)
+try {
+    foreach ($transactionData as $data) {
+        if ($data['prefixData'] && $data['prefixData']['is_external'] == 1) {
+            // Récupérer la transaction insérée
+            $lastTx = $db->table('transactions')
+                         ->where('sender_id', $clientId)
+                         ->where('amount', $data['amount'])
+                         ->where('is_external', 1)
+                         ->orderBy('id', 'DESC')
+                         ->limit(1)
+                         ->get()
+                         ->getRowArray();
+            
+            if ($lastTx) {
+                $externalData = [
+                    'transaction_id' => $lastTx['id'],
+                    'sender_id' => $clientId,
+                    'receiver_msisdn' => $data['msisdn'],
+                    'receiver_prefix' => $data['prefixData']['prefix'],
+                    'receiver_operator' => $data['prefixData']['operator_name'],
+                    'amount' => $data['amount'],
+                    'base_fee' => $data['base_fee'],
+                    'external_fee' => $data['external_fee'],
+                    'total_fee' => $data['fee'],
+                    'fee_percent' => $data['prefixData']['external_fee_percent'],
+                    'status' => 'completed',
+                    'created_at' => date('Y-m-d H:i:s'),
+                ];
+                
+                // Insérer directement avec SQL
+                $db->table('external_transactions')->insert($externalData);
+                log_message('debug', "✅ External transaction enregistrée pour {$data['msisdn']}");
             }
-        } catch (\Exception $e) {
-            log_message('error', "⚠️ Erreur external_transactions (ignorée): " . $e->getMessage());
-            // On continue même si external_transactions échoue
         }
+    }
+} catch (\Exception $e) {
+    log_message('error', "⚠️ Erreur external_transactions: " . $e->getMessage());
+    // On continue même si external_transactions échoue
+}
 
         // 5. Mettre à jour la session
         $client = $this->clientModel->find($clientId);
@@ -493,20 +552,19 @@ class ClientController extends BaseController
         log_message('debug', "💰 Nouveau solde: " . $client['balance']);
 
         $message = 'Transfert de ' . number_format($totalAmount, 0) . ' Ar vers ' . $receiverCount . ' destinataire(s) effectué avec succès';
-        if ($includeFees) {
-            $message .= ' (frais inclus)';
-        }
         
         $externalCount = 0;
+        $externalFees = 0;
         foreach ($receivers as $msisdn) {
             $prefix = substr($msisdn, 0, 3);
             $prefixData = $prefixModel->where('prefix', $prefix)->first();
             if ($prefixData && $prefixData['is_external'] == 1) {
                 $externalCount++;
+                $externalFees += $prefixData['external_fee_percent'];
             }
         }
         if ($externalCount > 0) {
-            $message .= ' (' . $externalCount . ' vers autre(s) opérateur(s))';
+            $message .= ' (' . $externalCount . ' vers autre(s) opérateur(s), commission totale: ' . number_format($externalFees, 2) . '%)';
         }
 
         return redirect()->to('/client/dashboard')->with('success', $message);

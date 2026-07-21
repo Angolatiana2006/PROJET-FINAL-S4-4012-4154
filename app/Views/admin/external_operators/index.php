@@ -3,51 +3,86 @@
 <?= $this->section('content') ?>
 
 <!-- Statistiques -->
-<div class="row g-3 mb-4">
-    <div class="col-md-4">
-        <div class="stat-card">
-            <p class="stat-label"><i class="fas fa-phone"></i> Total opérateurs</p>
-            <h3 class="stat-number"><?= count($operators) ?></h3>
+<div class="stats-grid mb-4">
+    <div class="stat-card">
+        <div class="stat-top">
+            <div>
+                <p class="stat-label">
+                    <i class="fas fa-phone"></i> Total opérateurs
+                </p>
+                <h3 class="stat-number"><?= count($operators) ?></h3>
+            </div>
+            <div class="stat-icon">
+                <i class="fas fa-phone"></i>
+            </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="stat-card">
-            <p class="stat-label"><i class="fas fa-check-circle"></i> Actifs</p>
-            <h3 class="stat-number" style="color: #2E7D32;">
-                <?php 
-                    $active = array_filter($operators, function($op) { return $op['is_active']; });
-                    echo count($active);
-                ?>
-            </h3>
+    
+    <div class="stat-card">
+        <div class="stat-top">
+            <div>
+                <p class="stat-label">
+                    <i class="fas fa-check-circle"></i> Actifs
+                </p>
+                <h3 class="stat-number" style="color: #10B981;">
+                    <?php 
+                        $active = array_filter($operators, function($op) { return $op['is_active']; });
+                        echo count($active);
+                    ?>
+                </h3>
+            </div>
+            <div class="stat-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="stat-card">
-            <p class="stat-label"><i class="fas fa-percent"></i> Comm. moyenne</p>
-            <h3 class="stat-number" style="color: #E65100;">
-                <?php 
-                    $avgFee = array_sum(array_column($operators, 'external_fee_percent')) / (count($operators) ?: 1);
-                    echo number_format($avgFee, 2) . '%';
-                ?>
-            </h3>
+    
+    <div class="stat-card">
+        <div class="stat-top">
+            <div>
+                <p class="stat-label">
+                    <i class="fas fa-percent"></i> Comm. moyenne
+                </p>
+                <h3 class="stat-number" style="color: #F59E0B;">
+                    <?php 
+                        $avgFee = array_sum(array_column($operators, 'external_fee_percent')) / (count($operators) ?: 1);
+                        echo number_format($avgFee, 2) . '%';
+                    ?>
+                </h3>
+            </div>
+            <div class="stat-icon">
+                <i class="fas fa-percent"></i>
+            </div>
         </div>
     </div>
 </div>
 
 <!-- Messages -->
 <?php if (session()->has('success')): ?>
-    <div class="alert alert-custom alert-success"><?= session('success') ?></div>
+    <div class="alert-custom alert-success d-flex align-items-center gap-2">
+        <i class="fas fa-check-circle"></i> <?= session('success') ?>
+        <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+    </div>
+<?php endif; ?>
+
+<?php if (session()->has('error')): ?>
+    <div class="alert-custom alert-danger d-flex align-items-center gap-2">
+        <i class="fas fa-exclamation-circle"></i> <?= session('error') ?>
+        <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+    </div>
 <?php endif; ?>
 
 <!-- Tableau -->
-<div class="admin-card">
-    <div class="admin-card-header">
-        <h5><i class="fas fa-list"></i> Liste des opérateurs externes</h5>
-        <a href="<?= base_url('admin/external-operators/create') ?>" class="btn btn-primary-custom btn-sm">
+<div class="card-dashboard">
+    <div class="card-header">
+        <h5>
+            <i class="fas fa-list"></i> Liste des opérateurs externes
+        </h5>
+        <a href="<?= base_url('admin/external-operators/create') ?>" class="btn-primary-custom btn-sm">
             <i class="fas fa-plus-circle"></i> Ajouter
         </a>
     </div>
-    <div class="admin-card-body">
+    <div class="card-body">
         <?php if (empty($operators)): ?>
             <div class="text-center py-4 text-muted">
                 <i class="fas fa-inbox" style="font-size: 32px;"></i>
@@ -69,10 +104,14 @@
                     <tbody>
                         <?php foreach ($operators as $op): ?>
                             <tr>
-                                <td><span class="badge-prefix"><?= $op['prefix'] ?></span></td>
-                                <td><strong><?= esc($op['operator_name']) ?></strong></td>
                                 <td>
-                                    <span class="badge" style="background: #FFF3E0; color: #E65100; font-weight: 600;">
+                                    <span class="badge-prefix"><?= $op['prefix'] ?></span>
+                                </td>
+                                <td>
+                                    <strong><?= esc($op['operator_name']) ?></strong>
+                                </td>
+                                <td>
+                                    <span class="badge" style="background: #FEF3C7; color: #92400E; font-weight: 600; padding: 4px 12px; border-radius: 20px;">
                                         <?= number_format($op['external_fee_percent'], 2) ?>%
                                     </span>
                                 </td>
@@ -92,19 +131,23 @@
                                 </td>
                                 <td>
                                     <?php if ($op['is_active']): ?>
-                                        <span class="badge-status active">Actif</span>
+                                        <span class="badge-status completed">
+                                            <i class="fas fa-circle-check"></i> Actif
+                                        </span>
                                     <?php else: ?>
-                                        <span class="badge-status inactive">Inactif</span>
+                                        <span class="badge-status failed">
+                                            <i class="fas fa-circle-xmark"></i> Inactif
+                                        </span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
                                     <div class="d-flex gap-1">
                                         <a href="<?= base_url("admin/external-operators/edit/{$op['id']}") ?>" 
-                                           class="btn-action btn-edit"><i class="fas fa-pen"></i></a>
+                                           class="btn-action-icon btn-edit"><i class="fas fa-pen"></i></a>
                                         <button onclick="toggleOperator(<?= $op['id'] ?>)" 
-                                                class="btn-action btn-toggle"><i class="fas fa-pause"></i></button>
+                                                class="btn-action-icon btn-toggle"><i class="fas fa-pause"></i></button>
                                         <button onclick="deleteOperator(<?= $op['id'] ?>)" 
-                                                class="btn-action btn-delete"><i class="fas fa-trash-can"></i></button>
+                                                class="btn-action-icon btn-delete"><i class="fas fa-trash-can"></i></button>
                                     </div>
                                 </td>
                             </tr>
@@ -116,9 +159,11 @@
     </div>
 </div>
 
+
+
 <script>
 function toggleOperator(id) {
-    if (confirm('Changer le statut ?')) {
+    if (confirm('Changer le statut de cet opérateur ?')) {
         fetch(`<?= base_url('admin/external-operators/toggle') ?>/${id}`, {
             method: 'POST',
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
@@ -132,7 +177,7 @@ function toggleOperator(id) {
 }
 
 function deleteOperator(id) {
-    if (confirm('Supprimer cet opérateur ?')) {
+    if (confirm('Supprimer cet opérateur externe ?')) {
         fetch(`<?= base_url('admin/external-operators/delete') ?>/${id}`, {
             method: 'DELETE',
             headers: { 'X-Requested-With': 'XMLHttpRequest' }

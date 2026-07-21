@@ -2,84 +2,74 @@
 
 <?= $this->section('content') ?>
 
-
-
 <!-- ============================================
     STATISTIQUES GLOBALES
     ============================================ -->
-<div class="row g-3 mb-4">
-    <div class="col-md-3">
-        <div class="stat-card">
-            <div class="d-flex justify-content-between align-items-start">
-                <div>
-                    <p class="stat-label">
-                        <i class="fas fa-coins"></i> Total gains
-                    </p>
-                    <h3 class="stat-number" style="color: #2E7D32;">
-                        <?= number_format($periodStats['total_gains'] ?? 0, 0) ?> Ar
-                    </h3>
-                    <small class="text-muted"><?= $periodLabel ?></small>
-                </div>
-                <div class="stat-icon text-success">
-                    <i class="fas fa-money-bill-wave"></i>
-                </div>
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-top">
+            <div>
+                <p class="stat-label">
+                    <i class="fas fa-coins"></i> Total gains
+                </p>
+                <h3 class="stat-number" style="color: #10B981;">
+                    <?= number_format($periodStats['total_gains'] ?? 0, 0) ?> Ar
+                </h3>
+                <span class="stat-period"><?= $periodLabel ?></span>
+            </div>
+            <div class="stat-icon">
+                <i class="fas fa-money-bill-wave"></i>
             </div>
         </div>
     </div>
     
-    <div class="col-md-3">
-        <div class="stat-card">
-            <div class="d-flex justify-content-between align-items-start">
-                <div>
-                    <p class="stat-label">
-                        <i class="fas fa-exchange-alt"></i> Transactions
-                    </p>
-                    <h3 class="stat-number">
-                        <?= number_format($periodStats['total_transactions'] ?? 0) ?>
-                    </h3>
-                    <small class="text-muted"><?= $periodLabel ?></small>
-                </div>
-                <div class="stat-icon text-primary">
-                    <i class="fas fa-list-ul"></i>
-                </div>
+    <div class="stat-card">
+        <div class="stat-top">
+            <div>
+                <p class="stat-label">
+                    <i class="fas fa-exchange-alt"></i> Transactions
+                </p>
+                <h3 class="stat-number">
+                    <?= number_format($periodStats['total_transactions'] ?? 0) ?>
+                </h3>
+                <span class="stat-period"><?= $periodLabel ?></span>
+            </div>
+            <div class="stat-icon">
+                <i class="fas fa-list-ul"></i>
             </div>
         </div>
     </div>
     
-    <div class="col-md-3">
-        <div class="stat-card">
-            <div class="d-flex justify-content-between align-items-start">
-                <div>
-                    <p class="stat-label">
-                        <i class="fas fa-arrow-trend-up"></i> Volume total
-                    </p>
-                    <h3 class="stat-number" style="color: #1565C0;">
-                        <?= number_format($periodStats['total_volume'] ?? 0, 0) ?> Ar
-                    </h3>
-                    <small class="text-muted"><?= $periodLabel ?></small>
-                </div>
-                <div class="stat-icon text-info">
-                    <i class="fas fa-chart-line"></i>
-                </div>
+    <div class="stat-card">
+        <div class="stat-top">
+            <div>
+                <p class="stat-label">
+                    <i class="fas fa-arrow-trend-up"></i> Volume total
+                </p>
+                <h3 class="stat-number" style="color: #0ca950ff;">
+                    <?= number_format($periodStats['total_volume'] ?? 0, 0) ?> Ar
+                </h3>
+                <span class="stat-period"><?= $periodLabel ?></span>
+            </div>
+            <div class="stat-icon">
+                <i class="fas fa-chart-line"></i>
             </div>
         </div>
     </div>
     
-    <div class="col-md-3">
-        <div class="stat-card">
-            <div class="d-flex justify-content-between align-items-start">
-                <div>
-                    <p class="stat-label">
-                        <i class="fas fa-arrow-right"></i> Frais moyen
-                    </p>
-                    <h3 class="stat-number" style="color: #E65100;">
-                        <?= number_format($periodStats['avg_gain'] ?? 0, 0) ?> Ar
-                    </h3>
-                    <small class="text-muted"><?= $periodLabel ?></small>
-                </div>
-                <div class="stat-icon text-warning">
-                    <i class="fas fa-calculator"></i>
-                </div>
+    <div class="stat-card">
+        <div class="stat-top">
+            <div>
+                <p class="stat-label">
+                    <i class="fas fa-arrow-right"></i> Frais moyen
+                </p>
+                <h3 class="stat-number" style="color: #F59E0B;">
+                    <?= number_format($periodStats['avg_gain'] ?? 0, 0) ?> Ar
+                </h3>
+                <span class="stat-period"><?= $periodLabel ?></span>
+            </div>
+            <div class="stat-icon">
+                <i class="fas fa-calculator"></i>
             </div>
         </div>
     </div>
@@ -91,45 +81,45 @@
 <div class="row g-3 mb-4">
     <!-- Gains Internes -->
     <div class="col-md-6">
-        <div class="admin-card">
-            <div class="admin-card-header" style="background: linear-gradient(135deg, #2E7D32, #1B5E20); color: white; border-radius: 16px 16px 0 0;">
+        <div class="card-dashboard">
+            <div class="card-header" style="background: linear-gradient(135deg, #065F46, #047857); color: white; border-radius: 12px 12px 0 0;">
                 <h5 style="color: white;">
                     <i class="fas fa-phone"></i> Opérateur interne
                 </h5>
-                <span style="font-size: 13px; opacity: 0.8;">
+                <span style="font-size: 12px; opacity: 0.8;">
                     <i class="fas fa-arrow-right"></i> Transferts entre clients
                 </span>
             </div>
-            <div class="admin-card-body">
+            <div class="card-body">
                 <div class="row g-2">
                     <div class="col-6">
-                        <div class="stat-card" style="box-shadow: none; background: #F8F9FA; padding: 12px 16px;">
+                        <div class="stat-card" style="box-shadow: none; background: #F9FAFB; padding: 12px 16px; border: 1px solid #E5E7EB;">
                             <p class="stat-label" style="font-size: 12px;">Total gains</p>
-                            <h4 style="color: #2E7D32; font-weight: 700; margin: 0;">
+                            <h4 style="color: #065F46; font-weight: 700; margin: 0;">
                                 <?= number_format($internalStats['total_gains'] ?? 0, 0) ?> Ar
                             </h4>
                         </div>
                     </div>
                     <div class="col-6">
-                        <div class="stat-card" style="box-shadow: none; background: #F8F9FA; padding: 12px 16px;">
+                        <div class="stat-card" style="box-shadow: none; background: #F9FAFB; padding: 12px 16px; border: 1px solid #E5E7EB;">
                             <p class="stat-label" style="font-size: 12px;">Transactions</p>
-                            <h4 style="color: #1A1A2E; font-weight: 700; margin: 0;">
+                            <h4 style="color: #1F2937; font-weight: 700; margin: 0;">
                                 <?= number_format($internalStats['total_transactions'] ?? 0) ?>
                             </h4>
                         </div>
                     </div>
                     <div class="col-6">
-                        <div class="stat-card" style="box-shadow: none; background: #F8F9FA; padding: 12px 16px;">
+                        <div class="stat-card" style="box-shadow: none; background: #F9FAFB; padding: 12px 16px; border: 1px solid #E5E7EB;">
                             <p class="stat-label" style="font-size: 12px;">Volume total</p>
-                            <h4 style="color: #1565C0; font-weight: 700; margin: 0;">
+                            <h4 style="color: #3B82F6; font-weight: 700; margin: 0;">
                                 <?= number_format($internalStats['total_volume'] ?? 0, 0) ?> Ar
                             </h4>
                         </div>
                     </div>
                     <div class="col-6">
-                        <div class="stat-card" style="box-shadow: none; background: #F8F9FA; padding: 12px 16px;">
+                        <div class="stat-card" style="box-shadow: none; background: #F9FAFB; padding: 12px 16px; border: 1px solid #E5E7EB;">
                             <p class="stat-label" style="font-size: 12px;">Frais moyen</p>
-                            <h4 style="color: #E65100; font-weight: 700; margin: 0;">
+                            <h4 style="color: #F59E0B; font-weight: 700; margin: 0;">
                                 <?= number_format($internalStats['avg_gain'] ?? 0, 0) ?> Ar
                             </h4>
                         </div>
@@ -141,49 +131,42 @@
 
     <!-- Gains Externes -->
     <div class="col-md-6">
-        <div class="admin-card">
-            <div class="admin-card-header" style="background: linear-gradient(135deg, #1565C0, #0D47A1); color: white; border-radius: 16px 16px 0 0;">
+        <div class="card-dashboard">
+            <div class="card-header" style="background: linear-gradient(135deg, #0ca950ff, #0ca950ff); color: white; border-radius: 12px 12px 0 0;">
                 <h5 style="color: white;">
                     <i class="fas fa-phone"></i> Autres opérateurs
                 </h5>
-                <span style="font-size: 13px; opacity: 0.8;">
+                <span style="font-size: 12px; opacity: 0.8;">
                     <i class="fas fa-arrow-right"></i> Transferts vers externes
                 </span>
             </div>
-            <div class="admin-card-body">
+            <div class="card-body">
                 <div class="row g-2">
                     <div class="col-6">
-                        <div class="stat-card" style="box-shadow: none; background: #F8F9FA; padding: 12px 16px;">
+                        <div class="stat-card" style="box-shadow: none; background: #F9FAFB; padding: 12px 16px; border: 1px solid #E5E7EB;">
                             <p class="stat-label" style="font-size: 12px;">Total gains</p>
-                            <h4 style="color: #1565C0; font-weight: 700; margin: 0;">
+                            <h4 style="color: #0ca950ff; font-weight: 700; margin: 0;">
                                 <?= number_format($externalStats['total_gains'] ?? 0, 0) ?> Ar
                             </h4>
                         </div>
                     </div>
                     <div class="col-6">
-                        <div class="stat-card" style="box-shadow: none; background: #F8F9FA; padding: 12px 16px;">
+                        <div class="stat-card" style="box-shadow: none; background: #F9FAFB; padding: 12px 16px; border: 1px solid #E5E7EB;">
                             <p class="stat-label" style="font-size: 12px;">Transactions</p>
-                            <h4 style="color: #1A1A2E; font-weight: 700; margin: 0;">
+                            <h4 style="color: #1F2937; font-weight: 700; margin: 0;">
                                 <?= number_format($externalStats['total_transactions'] ?? 0) ?>
                             </h4>
                         </div>
                     </div>
                     <div class="col-6">
-                        <div class="stat-card" style="box-shadow: none; background: #F8F9FA; padding: 12px 16px;">
+                        <div class="stat-card" style="box-shadow: none; background: #F9FAFB; padding: 12px 16px; border: 1px solid #E5E7EB;">
                             <p class="stat-label" style="font-size: 12px;">Volume total</p>
-                            <h4 style="color: #1565C0; font-weight: 700; margin: 0;">
+                            <h4 style="color: #3B82F6; font-weight: 700; margin: 0;">
                                 <?= number_format($externalStats['total_volume'] ?? 0, 0) ?> Ar
                             </h4>
                         </div>
                     </div>
-                    <div class="col-6">
-                        <div class="stat-card" style="box-shadow: none; background: #F8F9FA; padding: 12px 16px;">
-                            <p class="stat-label" style="font-size: 12px;">Commission moyenne</p>
-                            <h4 style="color: #E65100; font-weight: 700; margin: 0;">
-                                <?= number_format($externalStats['avg_external_fee'] ?? 0, 0) ?> Ar
-                            </h4>
-                        </div>
-                    </div>
+              
                 </div>
             </div>
         </div>
@@ -194,26 +177,25 @@
     DÉTAIL PAR OPÉRATEUR EXTERNE
     ============================================ -->
 <?php if (!empty($externalOperators)): ?>
-<div class="admin-card mb-4">
-    <div class="admin-card-header">
+<div class="card-dashboard mb-4">
+    <div class="card-header">
         <h5>
             <i class="fas fa-list-ul"></i> Détail par opérateur externe
         </h5>
-        <span class="text-muted" style="font-size: 13px;">
-            <i class="fas fa-clock"></i> <?= $periodLabel ?>
+        <span class="text-muted" style="font-size: 12px;">
+            <i class="fas fa-clock"></i> Toutes les données
         </span>
     </div>
-    <div class="admin-card-body">
+    <div class="card-body">
         <div class="table-responsive">
             <table class="table table-admin">
                 <thead>
                     <tr>
                         <th>Opérateur</th>
                         <th>Préfixe</th>
-                        <th>Commission</th>
-                        <th>Transactions</th>
-                        <th>Montant total</th>
-                        <th>Commission totale</th>
+                        <th>Commission (%)</th>
+                        <th>Montant envoyé</th>
+                        <th>Commission prise</th>
                         <th>À reverser</th>
                     </tr>
                 </thead>
@@ -227,33 +209,22 @@
                                 <span class="badge-prefix"><?= $op['receiver_prefix'] ?></span>
                             </td>
                             <td>
-                                <span class="badge" style="background: #FFF3E0; color: #E65100; font-weight: 600;">
+                                <span class="badge" style="background: #FEF3C7; color: #92400E; font-weight: 600; padding: 4px 12px; border-radius: 20px;">
                                     <?= number_format($op['avg_fee_percent'] ?? 0, 2) ?>%
                                 </span>
                             </td>
                             <td>
-                                <?= number_format($op['total_transactions'] ?? 0) ?>
-                            </td>
-                            <td>
                                 <?= number_format($op['total_amount'] ?? 0, 0) ?> Ar
                             </td>
-                            <td style="color: #E65100; font-weight: 600;">
+                            <td style="color: #D97706; font-weight: 600;">
                                 <?= number_format($op['total_external_fee'] ?? 0, 0) ?> Ar
                             </td>
-                            <td style="color: #C62828; font-weight: 600;">
+                            <td style="color: #DC2626; font-weight: 600;">
                                 <?= number_format(($op['total_amount'] ?? 0) - ($op['total_external_fee'] ?? 0), 0) ?> Ar
                             </td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
-                <tfoot>
-                    <tr style="background: #F8F9FA; font-weight: 600;">
-                        <td colspan="4" class="text-end">TOTAL</td>
-                        <td><?= number_format(array_sum(array_column($externalOperators, 'total_amount')), 0) ?> Ar</td>
-                        <td style="color: #E65100;"><?= number_format(array_sum(array_column($externalOperators, 'total_external_fee')), 0) ?> Ar</td>
-                        <td style="color: #C62828;"><?= number_format(array_sum(array_column($externalOperators, 'total_amount')) - array_sum(array_column($externalOperators, 'total_external_fee')), 0) ?> Ar</td>
-                    </tr>
-                </tfoot>
             </table>
         </div>
     </div>
@@ -263,16 +234,16 @@
 <!-- ============================================
     TRANSACTIONS RÉCENTES
     ============================================ -->
-<div class="admin-card">
-    <div class="admin-card-header">
+<div class="card-dashboard">
+    <div class="card-header">
         <h5>
             <i class="fas fa-clock-rotate-left"></i> Transactions récentes
         </h5>
-        <span class="text-muted" style="font-size: 13px;">
+        <span class="text-muted" style="font-size: 12px;">
             <i class="fas fa-rotate-right"></i> Mise à jour automatique
         </span>
     </div>
-    <div class="admin-card-body">
+    <div class="card-body">
         <?php if (empty($recentTransactions)): ?>
             <div class="text-center py-4 text-muted">
                 <i class="fas fa-inbox" style="font-size: 32px;"></i>
@@ -322,7 +293,7 @@
                                 <td><?= number_format($tx['amount'], 0) ?></td>
                                 <td>
                                     <?php if ($tx['fee_amount'] > 0): ?>
-                                        <span style="color: #2E7D32; font-weight: 600;">
+                                        <span style="color: #065F46; font-weight: 600;">
                                             <?= number_format($tx['fee_amount'], 0) ?>
                                         </span>
                                     <?php else: ?>
@@ -332,11 +303,15 @@
                                 <td><?= number_format($tx['total_amount'], 0) ?></td>
                                 <td>
                                     <?php if ($tx['status'] === 'completed'): ?>
-                                        <span class="badge-status active">
+                                        <span class="badge-status completed">
                                             <i class="fas fa-circle-check"></i> Terminé
                                         </span>
+                                    <?php elseif ($tx['status'] === 'pending'): ?>
+                                        <span class="badge-status pending">
+                                            <i class="fas fa-clock"></i> En attente
+                                        </span>
                                     <?php else: ?>
-                                        <span class="badge-status inactive">
+                                        <span class="badge-status failed">
                                             <i class="fas fa-circle-xmark"></i> <?= ucfirst($tx['status']) ?>
                                         </span>
                                     <?php endif; ?>
@@ -373,8 +348,8 @@ new Chart(ctx, {
         datasets: [{
             label: 'Gains (Ar)',
             data: chartData.values,
-            backgroundColor: 'rgba(108, 99, 255, 0.6)',
-            borderColor: 'rgba(108, 99, 255, 1)',
+            backgroundColor: 'rgba(79, 70, 229, 0.6)',
+            borderColor: 'rgba(79, 70, 229, 1)',
             borderWidth: 2,
             borderRadius: 6,
         }]
