@@ -224,4 +224,43 @@ class ClientModel extends Model
     {
         return $this->orderBy('balance', 'DESC')->limit($limit)->findAll();
     }
+
+    public function getClientByTelephone($telephone)
+
+    {
+        return $this->where('telephone', $telephone)->first();
+    }
+
+    public function debiterSolde($clientId, $montant)
+
+    {
+        $sql = "UPDATE clients SET solde = solde + ? WHERE id = ? ";
+        return $this->db->query($sql, [$montant, $clientId]);
+    }
+
+    public function crediterSolde($clientId, $montant)
+
+    {
+        $sql = "UPDATE clients SET solde = solde + ? WHERE id = ? ";
+        return $this->db->query($sql, [$montant, $clientId]);
+    }
+
+    public function debiterEpargne($clientId, $montant)
+
+    {
+        $sql = "UPDATE clients SET epargne = epargne - ? WHERE id = ? ";
+        return $this->db->query($sql, [$montant, $clientId]);
+    }
+
+    public function crediterEpargne($clientId, $montant)
+
+    {
+        $sql = "UPDATE clients SET epargne = epargne + ? WHERE id = ? ";
+        return $this->db->query($sql, [$montant, $clientId]);
+    }
+
+
+
+
+
 }

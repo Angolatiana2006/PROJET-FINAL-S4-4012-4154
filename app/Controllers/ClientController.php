@@ -359,6 +359,9 @@ class ClientController extends BaseController
     $client = $this->clientModel->find($clientId);
     $prefixModel = new \App\Models\PrefixModel();
 
+    $epargneModel = new \App\Models\EpargneModel();
+    $pourcentageEpargne = $epargneModel->getPourcentage($clientId);
+
     $receivers = [];
     foreach ($receiverMsisdns as $msisdn) {
         $msisdn = preg_replace('/[^0-9]/', '', $msisdn);
@@ -403,6 +406,16 @@ class ClientController extends BaseController
     // ============================================
     $totalDeducted = 0;
     $transactionData = [];
+
+    $montantEpargne = 0;
+    $montantReel = $totalAmount;
+
+    if ($pourcentageEpargne > 0) {
+        $montantEpargne = $totalAmount * ($pourcentageEpargne / 100);
+        $montantReel = $totalAmount - $montantEpargne;
+
+        $amountPerReceiver = $montantReel / $receiverCount;
+    }
 
     foreach ($receivers as $msisdn) {
         $prefix = substr($msisdn, 0, 3);
@@ -461,6 +474,13 @@ class ClientController extends BaseController
         // 1. Débiter l'expéditeur
         $db->query("UPDATE clients SET balance = balance - ? WHERE id = ?", [$totalDeducted, $clientId]);
         log_message('debug', "💰 Expéditeur débité: -$totalDeducted Ar");
+
+        if($montantEpargne > 0) {
+
+             $db->query("UPDATE clients SET epargne = epargne + ? WHERE id = ?", [$montantEpargne, $clientId]);
+            log_message('debug', "💰 Epargne credite: -$montantEpargne Ar ({$porcentageEpargne})%)");
+
+        }
 
         // 2. Créditer les destinataires internes
         foreach ($transactionData as $data) {

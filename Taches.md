@@ -78,3 +78,9 @@ Layout//pour le css
  promotion meme operateur:
  frais de transfert vers meme operateur
  atao anaty base ny valeur
+
+ alea 
+ notion epargne 
+ client rehefa miditra ao anatin'ny page any de miteny hoe zao pourcent ny epargneko 
+ samihafa pour chaque client ny pourcentage epargne 
+ pourcentage -> transfert dia ny 5% lasa any amin'ny epargne de ny ambony makany amin'ilay solde normale compte principale
