@@ -561,7 +561,7 @@ try {
         }
     }
 } catch (\Exception $e) {
-    log_message('error', "⚠️ Erreur external_transactions: " . $e->getMessage());
+    log_message('error', " Erreur external_transactions: " . $e->getMessage());
     // On continue même si external_transactions échoue
 }
 
